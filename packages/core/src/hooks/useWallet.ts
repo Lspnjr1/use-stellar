@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useStellarContext, WALLET_SESSION_STORAGE_KEY } from "../context/StellarProvider"
 import { isBrowser } from "../utils"
 import type { AutoConnectOptions, StellarNetwork, WalletState, WalletType } from "../types"
@@ -117,6 +117,7 @@ export function useWallet(): UseWalletReturn {
   // Tracks whether this hook is still mounted, so a late wallet response or a
   // watcher tick can never call setWallet on an unmounted component.
   const mountedRef = useRef(true)
+  const [restoredWallet, setRestoredWallet] = useState<WalletType | null>(null)
   const restoredWalletRef = useRef<WalletType | null>(null)
 
   const safeSetWallet = useCallback(
@@ -170,6 +171,7 @@ export function useWallet(): UseWalletReturn {
         })
 
         restoredWalletRef.current = null
+        setRestoredWallet(null)
 
         if (autoConnect.enabled) {
           writeSession(autoConnect.storage, {
@@ -199,6 +201,7 @@ export function useWallet(): UseWalletReturn {
     }
 
     restoredWalletRef.current = null
+    setRestoredWallet(null)
     writeSession(autoConnect.storage, null)
 
     safeSetWallet({
@@ -259,6 +262,7 @@ export function useWallet(): UseWalletReturn {
           // The extension is gone. Keep the stored intent so the user can
           // reinstall and pick up where they left off.
           restoredWalletRef.current = session.wallet
+          setRestoredWallet(session.wallet)
           return
         }
 
@@ -267,6 +271,7 @@ export function useWallet(): UseWalletReturn {
 
         if (!silent) {
           restoredWalletRef.current = session.wallet
+          setRestoredWallet(session.wallet)
           safeSetWallet(prev => ({
             ...prev,
             wallet: session.wallet,
@@ -341,6 +346,6 @@ export function useWallet(): UseWalletReturn {
     disconnect,
     refreshWalletNetwork,
     isNetworkMismatch,
-    restoredWallet: restoredWalletRef.current,
+    restoredWallet,
   }
 }

@@ -30,6 +30,14 @@
       }
     },
     "./core": {
+      "import": {
+        "types": "./dist/core.d.mts",
+        "default": "./dist/core.mjs"
+      },
+      "require": {
+        "types": "./dist/core.d.ts",
+        "default": "./dist/core.js"
+      }
       "types": "./src/core.ts",
       "default": "./src/core.ts"
     },
